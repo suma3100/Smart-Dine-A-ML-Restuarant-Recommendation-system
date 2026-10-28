@@ -1,0 +1,27 @@
+# Local/private inputs and large regenerable outputs
+**/data/raw/
+**/data/processed/restaurants_cleaned.csv
+**/data/processed/group_restaurant_features.csv
+**/data/processed/train_ml.csv
+**/data/processed/test_ml.csv
+**/data/processed/*.tmp
+.local-backup/
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+.streamlit/secrets.toml
+.ipynb_checkpoints/
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.zip
+*.log
+# Essential restaurant_features.csv, group_members.csv, models and manifests remain includable.
