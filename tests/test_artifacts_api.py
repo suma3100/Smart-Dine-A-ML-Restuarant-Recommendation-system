@@ -97,8 +97,8 @@ def test_api_empty_and_metadata(client):
 def test_dashboard_script_and_styles_are_served(client):
     html = client.get('/')
     assert html.status_code == 200
-    assert 'src="/static/app.js?v=2"' in html.text
-    assert 'href="/static/index.css?v=2"' in html.text
+    assert 'src="/static/app.js?v=organic-1"' in html.text
+    assert 'href="/static/index.css?v=organic-1"' in html.text
     assert client.get('/static/app.js').status_code == 200
     assert client.get('/static/index.css').status_code == 200
 

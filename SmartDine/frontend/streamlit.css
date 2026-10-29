@@ -1,0 +1,121 @@
+/* Organic presentation for Streamlit's existing widgets and recommendation cards. */
+:root { color-scheme: light; }
+html, body, .stApp { color: var(--dp-color-ink); font-family: var(--dp-typography-reading); }
+.stApp, [data-testid="stAppViewContainer"] { background: var(--dp-color-ground); }
+.stApp::before { content: ""; position: fixed; inset: 0; pointer-events: none; background-image: var(--organic-paper-grain); opacity: .18; z-index: 0; }
+[data-testid="stHeader"] { background: var(--dp-color-ground); color: var(--dp-color-ink); border-bottom: 1px solid var(--organic-border); }
+[data-testid="stHeader"] button { color: var(--dp-color-ink); }
+[data-testid="stMainBlockContainer"] { max-width: 1440px; padding: 3.5rem 3rem 4rem; }
+.stApp h1,.stApp h2,.stApp h3,.stApp h4 { color: var(--dp-color-ink); font-family: var(--dp-typography-display); font-weight: 500; line-height: 1.15; letter-spacing: -.035em; }
+.stApp h2 { font-size: 32px; }
+.stApp h3 { font-size: 27px; }
+.stApp p { font-family: var(--dp-typography-reading); line-height: 1.8; }
+.stApp [data-testid="stCaptionContainer"] { color: var(--dp-color-ink-muted); font-size: 13px; }
+.stApp label,.stApp label p { font-family: var(--dp-typography-reading); color: var(--dp-color-ink-muted); font-size: 14px; }
+.stApp hr { border-color: var(--organic-border); margin: 1.4rem 0 2rem; }
+.organic-header { display: grid; grid-template-columns: minmax(0,1fr) 280px; align-items: center; gap: 40px; padding: 25px 0 20px; }
+.organic-header h1 { font-size: clamp(46px,5.5vw,70px); padding: 0; line-height: 1.05; }
+.organic-header p { color: var(--dp-color-ink-muted); font-size: 19px; line-height: 1.7; max-width: 45ch; margin: 18px 0 0; }
+.organic-header .table-objects { justify-self: end; }
+[data-testid="stSidebar"] { background: var(--dp-color-field); color: var(--dp-color-surface); border-right: 0; }
+[data-testid="stSidebarContent"] { padding-top: 2rem; }
+[data-testid="stSidebar"] h1,[data-testid="stSidebar"] h2,[data-testid="stSidebar"] h3,[data-testid="stSidebar"] p,[data-testid="stSidebar"] label,[data-testid="stSidebar"] label p,[data-testid="stSidebar"] [data-testid="stCaptionContainer"] { color: var(--dp-color-surface); }
+[data-testid="stSidebar"] h2 { font-size: 30px; }
+[data-testid="stSidebar"] h3 { font-size: 24px; padding-top: 1.2rem; }
+[data-testid="stSidebar"] [data-testid="stSlider"] p { color: var(--dp-color-surface); }
+[data-testid="stSidebar"] button:focus-visible { outline-color: var(--dp-color-surface); }
+.stApp [data-baseweb="select"] > div,
+.stApp [data-baseweb="input"],
+.stApp [data-testid="stNumberInputContainer"],
+.stApp [data-testid="stTextInputRootElement"] { background: var(--dp-color-surface); color: var(--dp-color-ink); border-color: var(--organic-border); border-radius: 10px; }
+.stApp [data-baseweb="select"] input,
+.stApp [data-baseweb="select"] [role="combobox"],
+.stApp input { color: var(--dp-color-ink); font-family: var(--dp-typography-reading); caret-color: var(--dp-color-ink); }
+.stApp [data-baseweb="select"] > div > div { color: var(--dp-color-ink); }
+.stApp .react-aria-ComboBox > div { background: var(--dp-color-surface); color: var(--dp-color-ink); border-color: var(--organic-border); }
+.stApp .react-aria-ComboBox input { background: transparent; color: var(--dp-color-ink); }
+.stApp .react-aria-ComboBox button { color: var(--dp-color-ink-muted); background: transparent; }
+.stApp .react-aria-ComboBox:focus-within { outline: 2px solid var(--dp-color-primary); outline-offset: 2px; border-radius: 10px; }
+[data-testid="stSidebar"] .react-aria-ComboBox:focus-within { outline-color: var(--dp-color-surface); }
+.stApp [data-testid="stMultiSelect"] [data-tag] { background: var(--dp-color-surface-muted); color: var(--dp-color-ink); border-radius: var(--dp-radius-control); }
+.stApp [data-testid="stMultiSelect"] [data-tag] span { color: var(--dp-color-ink); }
+.stApp [data-baseweb="select"] svg { color: var(--dp-color-ink-muted); fill: var(--dp-color-ink-muted); }
+.stApp [data-baseweb="tag"] { background: var(--dp-color-surface-muted); color: var(--dp-color-ink); border-radius: var(--dp-radius-control); }
+.stApp [data-baseweb="tag"] span { color: var(--dp-color-ink); }
+.stApp [data-baseweb="tag"] svg { fill: var(--dp-color-ink); }
+.stApp [data-testid="stNumberInput"] button { background: var(--dp-color-surface-muted); color: var(--dp-color-ink); border-color: var(--organic-border); }
+.stApp [data-testid="stNumberInput"] input { background: var(--dp-color-surface); }
+.stApp [data-testid="stSlider"] [role="slider"] { background: var(--dp-color-primary); border: 2px solid var(--dp-color-surface); }
+.stApp [data-baseweb="slider"] [data-testid="stSliderThumbValue"] { color: var(--dp-color-ink); }
+.stApp [data-testid="stSlider"] [data-testid="stTickBar"] { color: var(--dp-color-ink-muted); }
+.stApp [data-testid="stCheckbox"] label span { border-color: var(--organic-border); }
+.stApp [data-testid="stCheckbox"] input { accent-color: var(--dp-color-primary); }
+.stApp button,.stApp input,.stApp summary { transition: background-color var(--dp-motion-interaction), border-color var(--dp-motion-interaction), color var(--dp-motion-interaction); }
+.stApp button:focus-visible,.stApp input:focus-visible,.stApp summary:focus-visible,
+.stApp [role="combobox"]:focus-visible,.stApp [role="slider"]:focus-visible { outline: 3px solid var(--dp-color-ink); outline-offset: 4px; box-shadow: none; }
+.stApp [data-baseweb="select"]:focus-within,.stApp [data-baseweb="input"]:focus-within { outline: 2px solid var(--dp-color-primary); outline-offset: 2px; }
+[data-testid="stSidebar"] [data-baseweb="select"]:focus-within,
+[data-testid="stSidebar"] [data-baseweb="input"]:focus-within { outline-color: var(--dp-color-surface); }
+.stApp [data-testid="stExpander"] details { background: var(--dp-color-surface); color: var(--dp-color-ink); border: 1px solid var(--organic-border); border-radius: 20px 12px 28px 14px; }
+.stApp [data-testid="stExpander"] summary { min-height: 52px; color: var(--dp-color-ink); background: transparent; }
+.stApp [data-testid="stExpander"] summary p { color: var(--dp-color-ink); font-size: 16px; }
+.stApp [data-testid="stExpander"] details[open] summary { border-bottom: 1px solid var(--organic-border); }
+.stApp [data-testid="stMetric"] { background: var(--dp-color-surface-muted); color: var(--dp-color-ink); padding: 20px; border-radius: 24px 14px 34px 12px; min-height: 145px; }
+.stApp [data-testid="stMetricLabel"] p { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+.stApp [data-testid="stMetricValue"] { font-family: var(--dp-typography-display); color: var(--dp-color-ink); }
+.stApp [data-testid="stMetricValue"] > div { font-family: var(--dp-typography-display); font-size: 27px; line-height: 1.25; white-space: normal; overflow-wrap: anywhere; }
+.stApp [data-testid="stAlert"] { background: var(--dp-color-surface-muted); color: var(--dp-color-ink); border: 1px solid var(--organic-border); border-radius: 20px 12px 30px 14px; }
+.stApp [data-testid="stAlert"] p { color: var(--dp-color-ink); }
+.stApp [data-testid="stAlertContainer"] { background: transparent; color: var(--dp-color-ink); }
+.stApp [data-testid="stSlider"] div:has(> div > input[type="range"]:focus-visible) { outline: 3px solid var(--dp-color-ink); outline-offset: 4px; }
+[data-testid="stSidebar"] [data-testid="stSlider"] div:has(> div > input[type="range"]:focus-visible) { outline-color: var(--dp-color-surface); }
+.stApp .stButton button { min-height: 52px; background: var(--dp-color-primary); color: var(--dp-color-surface); border: 1px solid var(--dp-color-primary); border-radius: var(--dp-radius-control); padding: 12px 24px; box-shadow: none; }
+.stApp .stButton button p { color: var(--dp-color-surface); font-size: 15px; }
+.stApp .stButton button:hover { background: #26331f; color: var(--dp-color-surface); border-color: #26331f; }
+.stApp .stButton button:active { transform: scale(.99); }
+.stApp [data-testid="stProgress"] > div > div > div > div { background: var(--dp-color-primary); }
+.stApp [data-testid="stProgress"] > div > div > div { background: var(--dp-color-surface-muted); }
+.rec-card { background: var(--dp-color-surface); color: var(--dp-color-ink); border: 1px solid var(--organic-border); border-radius: 24px 14px 34px 16px; padding: 28px; margin-top: 20px; }
+.organic-rec-heading { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 24px; align-items: start; }
+.organic-rec-heading > div:first-child { flex: 1; min-width: 160px; }
+.organic-rank { color: var(--dp-color-field); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+.organic-rec-name { font-size: 32px !important; margin: 8px 0 12px !important; padding: 0 !important; }
+.organic-rec-meta { font-size: 14px; color: var(--dp-color-ink-muted); line-height: 1.8; }
+.score-badge { display: inline-block; color: var(--dp-color-primary); background: var(--dp-color-surface-muted); border-radius: 25px 12px 30px 18px; padding: 14px 18px; font: 500 27px/1.2 var(--dp-typography-display); white-space: nowrap; }
+.organic-rec-details { display: flex; flex-wrap: wrap; gap: 10px 24px; color: var(--dp-color-ink-muted); border-block: 1px solid var(--organic-border); padding: 16px 0; margin: 24px 0; font-size: 14px; }
+.exp-box { padding: 0 0 0 16px; border-left: 2px solid var(--dp-color-art-accent); font-size: 15px; line-height: 1.8; }
+.rec-card.organic-featured { background: var(--dp-color-primary); border-color: var(--dp-color-primary); color: var(--dp-color-surface); }
+.organic-featured .organic-rank,.organic-featured .organic-rec-name,.organic-featured .organic-rec-meta,.organic-featured .organic-rec-details { color: var(--dp-color-surface) !important; }
+.organic-featured .organic-rec-details { border-color: #718064; }
+/* Streamlit popovers live outside .stApp; keep their portal menus legible. */
+[data-baseweb="popover"],[data-baseweb="popover"] ul,[role="listbox"] { background: var(--dp-color-surface); color: var(--dp-color-ink); font-family: var(--dp-typography-reading); }
+[role="option"] { color: var(--dp-color-ink); background: var(--dp-color-surface); }
+[role="option"]:hover,[role="option"][aria-selected="true"] { background: var(--dp-color-surface-muted); color: var(--dp-color-ink); }
+@media (max-width: 1000px) {
+  [data-testid="stMainBlockContainer"] { padding: 2.5rem 1.6rem 3rem; }
+  .organic-header { grid-template-columns: minmax(0,1fr) 210px; gap: 20px; }
+  .organic-header .table-objects { transform: scale(.8); transform-origin: right center; width: 210px; }
+}
+@media (max-width: 700px) {
+  [data-testid="stMainBlockContainer"] { padding: 2rem 1.2rem; }
+  .organic-header { grid-template-columns: minmax(0,1fr); padding: 16px 0 8px; gap: 24px; }
+  .organic-header h1 { font-size: 46px; }
+  .organic-header p { font-size: 17px; }
+  .organic-header .table-objects { justify-self: start; transform: none; width: 270px; }
+  .stApp [data-testid="stHorizontalBlock"] { flex-wrap: wrap; }
+  .stApp [data-testid="stHorizontalBlock"] > [data-testid="stColumn"] { flex: 1 1 100% !important; width: 100% !important; min-width: 0 !important; }
+  .stApp [data-testid="stHorizontalBlock"]:has([data-testid="stMetric"]) > [data-testid="stColumn"] { flex: 1 1 42% !important; width: 42% !important; }
+  .stApp [data-testid="stMetric"] { padding: 16px; }
+  .stApp [data-testid="stMetricValue"] > div { font-size: 24px; }
+  .rec-card { padding: 22px 18px; }
+  .organic-rec-name { font-size: 29px !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,*::before,*::after { animation: none !important; transition: none !important; }
+  .stApp .stButton button:active { transform: none !important; }
+}
+
+.stApp button[aria-label="Collapse sidebar"], .stApp button[aria-label="Collapse sidebar"] span { color: var(--dp-color-surface); }
+
+.organic-header-logo { display: block; width: 280px; max-width: 100%; height: auto; border-radius: 18px; justify-self: end; }
+@media (max-width: 700px) { .organic-header-logo { justify-self: start; } }

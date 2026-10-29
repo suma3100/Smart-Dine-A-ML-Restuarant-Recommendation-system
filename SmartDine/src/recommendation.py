@@ -2,6 +2,7 @@
 from pathlib import Path
 import joblib
 import warnings
+import unicodedata
 import numpy as np
 import pandas as pd
 from .paths import DATA_DIR, MODEL_PATH, METADATA_PATH
@@ -10,6 +11,41 @@ from .features import RestaurantFeatureBuilder
 from .group_preferences import normalize_text
 from .metadata import load_metadata
 from sklearn.exceptions import InconsistentVersionWarning
+
+
+
+def restaurant_display_name(name):
+    """Repair reversible UTF-8 mis-decoding for display without editing source rows."""
+    if pd.isna(name):
+        return ''
+    text = str(name).strip()
+    for _ in range(8):
+        if not any(marker in text for marker in ['\u00c3', '\u00c2', '\u00e2']):
+            break
+        repaired = None
+        for encoding in ['latin1', 'cp1252']:
+            try:
+                candidate = text.encode(encoding).decode('utf-8')
+            except (UnicodeEncodeError, UnicodeDecodeError):
+                continue
+            if candidate != text:
+                repaired = candidate
+                break
+        if repaired is None:
+            break
+        text = repaired
+    return text
+
+
+def restaurant_name_key(name, restaurant_id):
+    """Presentation diversity only; physical branch records remain untouched.
+
+    Match names across case, spacing, punctuation, accents and Unicode width variants.
+    Missing names keep separate IDs rather than merging unrelated unknowns.
+    """
+    text = unicodedata.normalize('NFKD', normalize_text(restaurant_display_name(name))).casefold()
+    key = ''.join(character for character in text if character.isalnum())
+    return ('name', key) if key else ('id', str(restaurant_id))
 
 
 class SmartDineRecommender:
@@ -24,6 +60,9 @@ class SmartDineRecommender:
         self.builder = RestaurantFeatureBuilder(pd.read_csv(self.data_path))
         self.df = self.builder.df
         self.locations_list = self.builder.locations
+        self._restaurant_ids = self.df.restaurant_id.astype(str).tolist()
+        self._restaurant_name_keys = [restaurant_name_key(name, rid)
+                                     for name, rid in zip(self.df['name'], self._restaurant_ids)]
         with warnings.catch_warnings():
             warnings.simplefilter('error', InconsistentVersionWarning)
             self.model = joblib.load(self.model_path)
@@ -65,8 +104,19 @@ class SmartDineRecommender:
         if require_online is True:
             mask &= self.df.online_order.eq(1).to_numpy()
         valid = np.flatnonzero(mask)
-        # Stable tie ordering independent of input row order.
-        ordered = sorted(valid, key=lambda i: (-scores[i], str(self.df.iloc[i].restaurant_id)))[:top_n]
+        # Filter first, then retain the highest-scoring eligible branch per name.
+        # Continue down the full ranking so duplicates do not consume Top-N slots.
+        # Restaurant ID breaks ties independently of catalogue row order.
+        ranked = sorted(valid, key=lambda i: (-scores[i], self._restaurant_ids[i]))
+        ordered, seen_names = [], set()
+        for idx in ranked:
+            key = self._restaurant_name_keys[idx]
+            if key in seen_names:
+                continue
+            seen_names.add(key)
+            ordered.append(idx)
+            if len(ordered) == top_n:
+                break
         recs = []
         for rank, idx in enumerate(ordered, 1):
             row, f = self.df.iloc[idx], x.iloc[idx]
@@ -92,7 +142,7 @@ class SmartDineRecommender:
                 return None if pd.isna(row[key]) else bool(row[key] == 1)
             score = float(scores[idx])
             recs.append({'rank': rank, 'restaurant_id': str(row.restaurant_id),
-                         'name': str(row['name']),
+                         'name': restaurant_display_name(row['name']) or str(row['name']),
                          **{k: str(row[k]) if pd.notna(row[k]) else 'Unknown'
                             for k in ['location', 'cuisines', 'rest_type']},
                          'cost_for_two': number('cost_for_two'), 'rating': number('rating'),
@@ -107,13 +157,19 @@ class SmartDineRecommender:
                                         'location_match', 'restaurant_type_match', 'group_agreement']},
                          'reasons': reasons, 'cautions': cautions,
                          'explanation': '; '.join(reasons + cautions) or 'Ranked by the benchmark compatibility model.'})
+        message = ''
+        if not recs:
+            message = 'No restaurants match all active filters. Adjust filters explicitly.'
+        elif len(recs) < top_n:
+            message = f'Only {len(recs)} distinct restaurant names match all active filters.'
         return {'status': 'success', 'group_profile': profile,
                 'group_summary': {**profile, 'locations': profile['preferred_locations'],
                                   'restaurant_types': profile['preferred_types'],
                                   'total_candidates_scored': len(valid)},
                 'total_candidates_evaluated': len(valid), 'recommendations': recs,
                 'filters_relaxed': False,
-                'message': '' if recs else 'No restaurants match all active filters. Adjust filters explicitly.',
+                'message': message,
+                'ranking_policy': 'One result per restaurant name; highest-scoring matching branch shown.',
                 'limitations': ['Dietary information is unverified.',
                                'Scores approximate a constructed target, not human satisfaction.',
                                'Time/day are collected context only; no opening hours or trained time/day effect.']}

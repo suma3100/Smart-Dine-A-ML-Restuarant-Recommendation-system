@@ -8,6 +8,7 @@ let currentPresets = [];
 let activePresetId = "G001";
 let currentRecommendations = [];
 let currentGroupSummary = null;
+let modalTrigger = null;
 
 // Initial Default Members (Illustrative default members; not saved group G001)
 let groupMembers = [
@@ -69,12 +70,9 @@ let groupMembers = [
 ];
 
 const AVATAR_COLORS = [
-  "linear-gradient(135deg, #6366f1, #8b5cf6)",
-  "linear-gradient(135deg, #10b981, #059669)",
-  "linear-gradient(135deg, #f59e0b, #d97706)",
-  "linear-gradient(135deg, #ec4899, #be185d)",
-  "linear-gradient(135deg, #3b82f6, #1d4ed8)",
-  "linear-gradient(135deg, #06b6d4, #0891b2)"
+  "var(--dp-color-primary)", "var(--dp-color-field)",
+  "var(--dp-color-ink-muted)", "var(--dp-color-primary)",
+  "var(--dp-color-field)", "var(--dp-color-ink-muted)"
 ];
 
 // ------------------------------------------------------------
@@ -105,13 +103,25 @@ function setupEventListeners() {
   document.getElementById("bookingToggle").addEventListener("change", triggerRecommendation);
   document.getElementById("onlineOrderToggle").addEventListener("change", triggerRecommendation);
 
+  // Keep the existing details dialog reachable by keyboard.
+  document.addEventListener("keydown", (event) => {
+    const dialog = document.getElementById("detailModal");
+    if (dialog.classList.contains("hidden")) return;
+    if (event.key === "Escape") { event.preventDefault(); closeMemberDetails(); }
+    if (event.key === "Tab") {
+      const focusable = [...dialog.querySelectorAll('button, [href], input, select, [tabindex="0"]')];
+      const first = focusable[0], last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+    }
+  });
   // Modal close
   document.getElementById("closeModalBtn").addEventListener("click", () => {
-    document.getElementById("detailModal").classList.add("hidden");
+    closeMemberDetails();
   });
   document.getElementById("detailModal").addEventListener("click", (e) => {
     if (e.target.id === "detailModal") {
-      document.getElementById("detailModal").classList.add("hidden");
+      closeMemberDetails();
     }
   });
 }
@@ -231,7 +241,7 @@ function renderMembers() {
       <div class="member-card-header">
         <div class="member-avatar-name">
           <div class="member-avatar" style="background: ${color};">${initial}</div>
-          <input type="text" class="member-name-input" value="${escapeHtml(member.name)}" placeholder="Member Name" data-index="${index}">
+          <input type="text" class="member-name-input" aria-label="Member ${index + 1} name" value="${escapeHtml(member.name)}" placeholder="Member Name" data-index="${index}">
         </div>
         ${groupMembers.length > 1 ? `
           <button class="remove-member-btn" title="Remove Member" data-index="${index}">&times;</button>
@@ -239,24 +249,24 @@ function renderMembers() {
       </div>
 
       <div class="diet-selector">
-        <div class="diet-pill ${member.dietary_preference === 'vegetarian' ? 'selected' : ''}" data-index="${index}" data-diet="vegetarian">🌱 Veg</div>
-        <div class="diet-pill ${member.dietary_preference === 'vegan' ? 'selected' : ''}" data-index="${index}" data-diet="vegan">🌿 Vegan</div>
-        <div class="diet-pill ${member.dietary_preference === 'non-vegetarian' ? 'selected' : ''}" data-index="${index}" data-diet="non-vegetarian">🍗 Non-Veg</div>
-        <div class="diet-pill ${!member.dietary_preference || member.dietary_preference === 'no preference' ? 'selected' : ''}" data-index="${index}" data-diet="no preference">Any</div>
+        <button type="button" class="diet-pill ${member.dietary_preference === 'vegetarian' ? 'selected' : ''}" data-index="${index}" data-diet="vegetarian" aria-pressed="${(member.dietary_preference || 'no preference') === 'vegetarian'}">🌱 Veg</button>
+        <button type="button" class="diet-pill ${member.dietary_preference === 'vegan' ? 'selected' : ''}" data-index="${index}" data-diet="vegan" aria-pressed="${(member.dietary_preference || 'no preference') === 'vegan'}">🌿 Vegan</button>
+        <button type="button" class="diet-pill ${member.dietary_preference === 'non-vegetarian' ? 'selected' : ''}" data-index="${index}" data-diet="non-vegetarian" aria-pressed="${(member.dietary_preference || 'no preference') === 'non-vegetarian'}">🍗 Non-Veg</button>
+        <button type="button" class="diet-pill ${!member.dietary_preference || member.dietary_preference === 'no preference' ? 'selected' : ''}" data-index="${index}" data-diet="no preference" aria-pressed="${(member.dietary_preference || 'no preference') === 'no preference'}">Any</button>
       </div>
 
       <div class="member-field-row">
         <span class="member-field-label">Budget for Two:</span>
         <span class="member-budget-val" id="budgetDisplay_${index}">₹${member.budget}</span>
       </div>
-      <input type="range" class="member-range-slider" min="200" max="2500" step="50" value="${member.budget}" data-index="${index}">
+      <input type="range" class="member-range-slider" aria-label="${escapeHtml(member.name || 'Member')} budget for two" min="200" max="2500" step="50" value="${member.budget}" data-index="${index}">
 
       <div class="member-dropdowns">
-        <select class="member-mini-select loc-select" data-index="${index}">
+        <select class="member-mini-select loc-select" aria-label="${escapeHtml(member.name || 'Member')} preferred location" data-index="${index}">
           <option value="">Preferred Location</option>
           ${getLocationOptions(member.preferred_location)}
         </select>
-        <select class="member-mini-select type-select" data-index="${index}">
+        <select class="member-mini-select type-select" aria-label="${escapeHtml(member.name || 'Member')} dining style" data-index="${index}">
           <option value="">Dining Style</option>
           ${getTypeOptions(member.preferred_restaurant_type)}
         </select>
@@ -291,10 +301,12 @@ function renderMembers() {
 
   container.querySelectorAll(".diet-pill").forEach(pill => {
     pill.addEventListener("click", (e) => {
-      const idx = parseInt(e.target.dataset.index);
-      const diet = e.target.dataset.diet;
+      const idx = parseInt(e.currentTarget.dataset.index);
+      const diet = e.currentTarget.dataset.diet;
       groupMembers[idx].dietary_preference = diet;
       renderMembers();
+      const selectedDiet = container.querySelector(`.diet-pill[data-index="${idx}"][data-diet="${diet}"]`);
+      if (selectedDiet) selectedDiet.focus();
       updateConsensusMeter();
       triggerRecommendation();
     });
@@ -394,13 +406,13 @@ function updateConsensusMeter() {
 
     if (pct >= 75) {
       descEl.textContent = "High cuisine agreement: members list similar preferred cuisines.";
-      barEl.style.background = "linear-gradient(90deg, #10b981, #059669)";
+      barEl.style.background = "var(--dp-color-highlight)";
     } else if (pct >= 50) {
       descEl.textContent = "Moderate cuisine agreement: some preferred cuisines overlap.";
-      barEl.style.background = "linear-gradient(90deg, #10b981, #f59e0b)";
+      barEl.style.background = "var(--dp-color-art-accent)";
     } else {
       descEl.textContent = "Low cuisine agreement: preferred cuisine sets have little overlap.";
-      barEl.style.background = "linear-gradient(90deg, #f59e0b, #ef4444)";
+      barEl.style.background = "var(--dp-color-art-accent)";
     }
   }
 }
@@ -520,8 +532,8 @@ function renderRecommendations(data) {
           <span class="spec-val">${ratingDisplay}</span>
           <span>(${item.votes === null ? "Unknown" : item.votes} votes)</span>
         </div>
-        ${item.book_table === null ? "Booking unknown" : item.book_table ? `<div class="spec-chip"><span style="color: #34d399">✓</span> Table Booking</div>` : ''}
-        ${item.online_order === null ? "Ordering unknown" : item.online_order ? `<div class="spec-chip"><span style="color: #38bdf8">✓</span> Online Ordering</div>` : ''}
+        ${item.book_table === null ? "Booking unknown" : item.book_table ? `<div class="spec-chip"><span style="color: var(--dp-color-primary)">✓</span> Table Booking</div>` : ''}
+        ${item.online_order === null ? "Ordering unknown" : item.online_order ? `<div class="spec-chip"><span style="color: var(--dp-color-field)">✓</span> Online Ordering</div>` : ''}
       </div>
 
       <div class="rec-explanation-box">
@@ -593,7 +605,13 @@ function renderRecommendations(data) {
 // ------------------------------------------------------------
 // Member Deep Dive Modal
 // ------------------------------------------------------------
+function closeMemberDetails() {
+  document.getElementById("detailModal").classList.add("hidden");
+  modalTrigger?.focus?.();
+}
+
 function openMemberDeepDive(restaurant) {
+  modalTrigger = document.activeElement;
   document.getElementById("modalRestaurantName").textContent = `${restaurant.name} (${restaurant.location})`;
   const body = document.getElementById("modalBody");
 
@@ -617,14 +635,14 @@ function openMemberDeepDive(restaurant) {
     }
 
     html += `
-      <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1rem;">
+      <div style="background: var(--dp-color-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1rem;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
           <strong style="color: var(--text-main); font-size: 0.95rem;">${escapeHtml(member.name)}</strong>
-          <span style="font-size: 0.75rem; padding: 0.2rem 0.6rem; border-radius: var(--radius-pill); background: rgba(255, 255, 255, 0.05); color: var(--text-muted);">${capitalize(member.dietary_preference || "Any diet")}</span>
+          <span style="font-size: 0.75rem; padding: 0.2rem 0.6rem; border-radius: var(--radius-pill); background: var(--dp-color-surface-muted); color: var(--text-muted);">${capitalize(member.dietary_preference || "Any diet")}</span>
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.8rem; color: var(--text-muted);">
-          <div>Target Budget: <span style="color: #fff">₹${member.budget}</span> (<span style="color: ${budgetColor}">${budgetStatus}</span>)</div>
-          <div>Location Preference: <span style="color: #fff">${escapeHtml(capitalize(member.preferred_location || "Flexible"))}</span></div>
+          <div>Target Budget: <span style="color: var(--dp-color-ink)">₹${member.budget}</span> (<span style="color: ${budgetColor}">${budgetStatus}</span>)</div>
+          <div>Location Preference: <span style="color: var(--dp-color-ink)">${escapeHtml(capitalize(member.preferred_location || "Flexible"))}</span></div>
         </div>
       </div>
     `;
@@ -633,6 +651,7 @@ function openMemberDeepDive(restaurant) {
   html += `</div>`;
   body.innerHTML = html;
   document.getElementById("detailModal").classList.remove("hidden");
+  document.getElementById("closeModalBtn").focus?.();
 }
 
 // ------------------------------------------------------------

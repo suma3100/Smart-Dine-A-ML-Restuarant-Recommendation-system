@@ -11,7 +11,7 @@ from SmartDine.src.schema import sha256, write_json
 
 def package():
     names = ['app.py','server.py','pipeline.py','requirements.txt','README.md','PROJECT_AUDIT.md',
-             'pytest.ini','.gitignore','SmartDine/__init__.py','SmartDine/app.py',
+             'pytest.ini','.gitignore','.streamlit/config.toml','SmartDine/__init__.py','SmartDine/app.py',
              'SmartDine/README.md','SmartDine/requirements.txt','SmartDine/.gitignore',
              'SmartDine/data/processed/restaurant_features.csv',
              'SmartDine/data/processed/group_members.csv',
@@ -23,7 +23,7 @@ def package():
              'SmartDine/outputs/model_evaluation_metrics.csv','SmartDine/outputs/feature_coefficients.csv',
              'SmartDine/outputs/scenarios.json','SmartDine/outputs/historical_replay.json']
     for folder, extensions in [('SmartDine/src',{'.py'}),('SmartDine/frontend',{'.html','.css','.js'}),
-            ('SmartDine/notebooks',{'.ipynb'}),('SmartDine/outputs/figures',{'.png','.json'}),
+            ('SmartDine/frontend/assets',{'.png'}),('SmartDine/frontend/fonts',{'.woff2','.txt'}),('SmartDine/notebooks',{'.ipynb'}),('SmartDine/outputs/figures',{'.png','.json'}),
             ('tests',{'.py','.cjs'}),('tools',{'.py'}),('docs',{'.md','.json','.xml','.png'})]:
         names.extend(p.relative_to(ROOT).as_posix() for p in (ROOT/folder).iterdir()
                      if p.is_file() and p.suffix in extensions and p.name!='submission_manifest.json')

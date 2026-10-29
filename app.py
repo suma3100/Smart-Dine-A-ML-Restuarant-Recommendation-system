@@ -5,6 +5,7 @@ Streamlit Web Application (app.py)
 
 from pathlib import Path
 import html
+import base64
 import streamlit as st
 from SmartDine.src.group_preferences import MemberPreference, GroupPreferences
 from SmartDine.src.recommendation import SmartDineRecommender
@@ -14,56 +15,20 @@ ROOT_DIR = Path(__file__).resolve().parent
 # Page Configuration
 st.set_page_config(
     page_title="SmartDine — Context-Aware Group Dining AI",
-    page_icon="🍽️",
+    page_icon=str(ROOT_DIR / "SmartDine" / "frontend" / "assets" / "smart-dine-logo.png"),
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="auto"
 )
 
-# Custom Styling
-st.markdown("""
-<style>
-    .main { background-color: #0b0f19; }
-    h1, h2, h3 { color: #f8fafc; font-family: 'Plus Jakarta Sans', sans-serif; }
-    .rec-card {
-        background: linear-gradient(135deg, rgba(22, 32, 54, 0.8) 0%, rgba(15, 23, 42, 0.95) 100%);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 12px;
-        padding: 1.4rem;
-        margin-bottom: 1.2rem;
-        transition: transform 0.2s ease, border-color 0.2s ease;
-    }
-    .rec-card:hover {
-        border-color: rgba(245, 158, 11, 0.4);
-        transform: translateY(-2px);
-    }
-    .score-badge {
-        background: rgba(16, 185, 129, 0.15);
-        color: #34d399;
-        font-weight: 700;
-        font-size: 1.2rem;
-        padding: 0.3rem 0.8rem;
-        border-radius: 9999px;
-        border: 1px solid rgba(16, 185, 129, 0.3);
-    }
-    .exp-box {
-        background: rgba(16, 185, 129, 0.06);
-        border-left: 3px solid #10b981;
-        padding: 0.6rem 0.9rem;
-        border-radius: 0 6px 6px 0;
-        margin-top: 0.7rem;
-        font-size: 0.88rem;
-    }
-    .preset-pill {
-        display: inline-block;
-        background: rgba(255, 255, 255, 0.06);
-        padding: 0.25rem 0.65rem;
-        border-radius: 9999px;
-        font-size: 0.78rem;
-        margin-right: 0.3rem;
-        margin-bottom: 0.3rem;
-    }
-</style>
-""", unsafe_allow_html=True)
+# Shared Organic presentation. Fonts are embedded for Streamlit's style block;
+# the dashboard serves the same licensed files through its existing static route.
+FRONTEND_DIR = ROOT_DIR / "SmartDine" / "frontend"
+organic_css = (FRONTEND_DIR / "organic-tokens.css").read_text(encoding="utf-8")
+for filename in ["source-serif-4-latin.woff2", "instrument-sans-latin.woff2"]:
+    encoded = base64.b64encode((FRONTEND_DIR / "fonts" / filename).read_bytes()).decode("ascii")
+    organic_css = organic_css.replace(f"fonts/{filename}", f"data:font/woff2;base64,{encoded}")
+organic_css += (FRONTEND_DIR / "streamlit.css").read_text(encoding="utf-8")
+st.markdown(f"<style>{organic_css}</style>", unsafe_allow_html=True)
 
 
 @st.cache_resource
@@ -115,12 +80,17 @@ PRESETS = {
 }
 
 # --- HEADER ---
-col_logo, col_title = st.columns([1, 10])
-with col_logo:
-    st.markdown("<h1 style='font-size: 2.8rem;'>🍽️</h1>", unsafe_allow_html=True)
-with col_title:
-    st.title("SmartDine")
-    st.caption("A Context-Aware Group Restaurant Recommendation System Using Machine Learning")
+logo_bytes = (FRONTEND_DIR / "assets" / "smart-dine-logo.png").read_bytes()
+logo_data_uri = "data:image/png;base64," + base64.b64encode(logo_bytes).decode("ascii")
+st.markdown(f"""
+<header class="organic-header">
+  <div class="organic-brand">
+    <h1>SmartDine</h1>
+    <p>A Context-Aware Group Restaurant Recommendation System Using Machine Learning</p>
+  </div>
+  <img class="organic-header-logo" src="{logo_data_uri}" alt="SmartDine logo" width="280" height="197">
+</header>
+""", unsafe_allow_html=True)
 
 st.markdown("---")
 
@@ -266,26 +236,29 @@ if st.button("🚀 Recommend Restaurants", type="primary", use_container_width=T
 
     st.success(f"Evaluated {results['total_candidates_evaluated']} candidate restaurants. Top {len(results['recommendations'])} recommendations generated:")
 
+    st.caption(results['ranking_policy'])
     if not results['recommendations']:
         st.warning(results['message'])
+    elif results['message']:
+        st.info(results['message'])
     for r in results["recommendations"]:
         r = {k: html.escape(v) if isinstance(v, str) else v for k, v in r.items()}
         with st.container():
             st.markdown(f"""
-            <div class="rec-card">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div class="rec-card{' organic-featured' if r['rank'] == 1 else ''}">
+                <div class="organic-rec-heading">
                     <div>
-                        <span style="font-size: 0.8rem; font-weight: 700; color: #f59e0b; text-transform: uppercase;">Rank #{r['rank']}</span>
-                        <h3 style="margin: 0.2rem 0; font-size: 1.3rem;">{r['name']}</h3>
-                        <div style="color: #94a3b8; font-size: 0.85rem;">
+                        <span class="organic-rank">Rank #{r['rank']}</span>
+                        <h3 class="organic-rec-name">{r['name']}</h3>
+                        <div class="organic-rec-meta">
                             📍 {r['location']} &nbsp;•&nbsp; 🍽️ {r['cuisines']} &nbsp;•&nbsp; 🏷️ {r['rest_type']}
                         </div>
                     </div>
-                    <div style="text-align: right;">
+                    <div class="organic-score">
                         <span class="score-badge">{r['match_percentage']}/100 Index</span>
                     </div>
                 </div>
-                <div style="display: flex; gap: 1.5rem; margin-top: 0.8rem; font-size: 0.85rem; color: #cbd5e1;">
+                <div class="organic-rec-details">
                     <div><strong>Cost:</strong> ₹{r['cost_for_two']} for two</div>
                     <div><strong>Rating:</strong> ★ {r['rating'] if r['rating'] else 'New'} ({r['votes']} votes)</div>
                     <div>{'Booking unknown' if r['book_table'] is None else '✅ Table Booking' if r['book_table'] else '❌ No Booking'}</div>

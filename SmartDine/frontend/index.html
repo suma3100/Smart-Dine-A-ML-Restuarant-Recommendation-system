@@ -2,32 +2,23 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <link rel="icon" type="image/png" href="/static/assets/smart-dine-logo.png?v=transparent-1">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SmartDine — Real-Time ML Group Dining Recommendation Engine</title>
   <meta name="description" content="AI and Machine Learning powered group restaurant recommendation system aggregating member preferences, budgets, diets, and consensus.">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/static/index.css?v=2">
+  <link rel="stylesheet" href="/static/index.css?v=organic-1">
 </head>
 <body>
   <!-- Ambient background glow layers -->
-  <div class="ambient-glow glow-1"></div>
-  <div class="ambient-glow glow-2"></div>
-  <div class="ambient-glow glow-3"></div>
+  <div class="ambient-glow glow-1" aria-hidden="true"></div>
+  <div class="ambient-glow glow-2" aria-hidden="true"></div>
+  <div class="ambient-glow glow-3" aria-hidden="true"></div>
 
   <!-- Top Navigation Bar -->
   <header class="navbar" id="mainHeader">
     <div class="brand">
-      <div class="brand-logo-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-        </svg>
-      </div>
-      <div>
-        <div class="brand-title">Smart<span>Dine</span></div>
-        <div class="brand-subtitle">Real-Time Group Dining AI</div>
-      </div>
+      <img class="brand-logo-image" src="/static/assets/smart-dine-logo.png?v=transparent-1" alt="SmartDine" width="220" height="155">
+      <div class="brand-subtitle">Real-Time Group Dining AI</div>
     </div>
 
     <!-- Status Badges -->
@@ -57,6 +48,7 @@
         <p class="hero-desc">Compare group cuisine choices, budgets and neighborhood preferences with an explainable compatibility index. Dietary suitability remains unverified.</p>
       </div>
       <div class="preset-controls">
+        <div class="table-objects" aria-hidden="true"><span class="object-clay"></span><span class="object-moss"></span><span class="object-stone"></span></div>
         <span class="preset-label">Quick Presets:</span>
         <div class="preset-buttons" id="presetButtonsContainer">
           <!-- Loaded dynamically via JS -->
@@ -201,6 +193,8 @@
           </div>
         </div>
 
+        <p class="panel-subtitle">One result per restaurant name; highest-scoring matching branch shown.</p>
+
         <!-- Container for Recommendation Cards -->
         <div class="recommendations-container" id="recommendationsList">
           <div class="loading-state" id="loadingState">
@@ -246,14 +240,14 @@
   </main>
 
   <!-- Member-by-Member Deep Dive Modal -->
-  <div class="modal-backdrop hidden" id="detailModal">
+  <div class="modal-backdrop hidden" id="detailModal" role="dialog" aria-modal="true" aria-labelledby="modalRestaurantName">
     <div class="modal-content">
       <div class="modal-header">
         <div>
           <span class="modal-pretitle">Member Preference Breakdown</span>
           <h3 class="modal-title" id="modalRestaurantName">Restaurant Details</h3>
         </div>
-        <button class="modal-close-btn" id="closeModalBtn">&times;</button>
+        <button class="modal-close-btn" id="closeModalBtn" aria-label="Close restaurant details">&times;</button>
       </div>
       <div class="modal-body" id="modalBody">
         <!-- Injected dynamically -->
@@ -261,6 +255,6 @@
     </div>
   </div>
 
-  <script src="/static/app.js?v=2"></script>
+  <script src="/static/app.js?v=organic-1"></script>
 </body>
 </html>

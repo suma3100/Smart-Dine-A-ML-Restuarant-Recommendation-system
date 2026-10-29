@@ -1,0 +1,50 @@
+/* Shared Organic design tokens and locally hosted, OFL-licensed typefaces. */
+@font-face {
+  font-family: "Organic Source Serif";
+  src: url("fonts/source-serif-4-latin.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Organic Instrument Sans";
+  src: url("fonts/instrument-sans-latin.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+}
+:root {
+  --dp-color-ground: #eee6d6;
+  --dp-color-surface: #f5eddf;
+  --dp-color-ink: #29251d;
+  --dp-color-primary: #35422d;
+  --dp-color-field: #694737;
+  --dp-color-art-accent: #ad7d62;
+  --dp-color-surface-muted: #ddd5c3;
+  --dp-color-highlight: #b9b28b;
+  --dp-color-ink-muted: #443b2f;
+  --dp-typography-display: "Organic Source Serif", Georgia, serif;
+  --dp-typography-reading: "Organic Instrument Sans", sans-serif;
+  --dp-typography-body: 16px;
+  --dp-typography-reading-small: 15px;
+  --dp-typography-control: 14px;
+  --dp-typography-caption: 13px;
+  --dp-typography-metadata: 12px;
+  --dp-typography-reading-leading: 1.8;
+  --dp-spacing-content-gap: 24px;
+  --dp-radius-control: 27px 19px 29px 16px / 22px 26px 19px 29px;
+  --dp-border-hairline: 1px;
+  --dp-motion-interaction: 240ms ease;
+  --organic-border: #c5bba6;
+  --organic-paper-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.78' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Cpath fill='%2329251d' opacity='.18' filter='url(%23grain)' d='M0 0h180v180H0z'/%3E%3C/svg%3E");
+}
+/* Flat table objects; purely decorative, never placed over reading. */
+.table-objects { position: relative; height: 132px; width: 270px; pointer-events: none; }
+.table-objects span { position: absolute; display: block; }
+.table-objects .object-clay { width: 116px; height: 95px; background: var(--dp-color-art-accent); border-radius: 58% 42% 30% 70% / 50% 40% 60% 50%; top: 13px; left: 6px; transform: rotate(-14deg); }
+.table-objects .object-moss { width: 113px; height: 128px; background: var(--dp-color-primary); border-radius: 49% 51% 28% 72% / 40% 39% 61% 60%; top: 0; left: 128px; transform: rotate(17deg); }
+.table-objects .object-stone { width: 99px; height: 70px; background: var(--dp-color-highlight); border: 1px solid var(--dp-color-ground); border-radius: 55% 45% 64% 36%; top: 64px; left: 86px; transform: rotate(-9deg); }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  button:active, a:active, summary:active { transform: none !important; }
+}
