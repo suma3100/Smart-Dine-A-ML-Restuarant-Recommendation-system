@@ -8,6 +8,10 @@ SmartDine combines group members' cuisine choices, budgets for two, neighborhood
 
 Run commands from this directory, the outer `smart-dine-main` folder containing `pipeline.py`, `app.py` and `server.py`. The ZIP contained two additional wrapper folders; these were flattened on extraction. `SmartDine/` remains the Python package and artifact directory, not a second independent project. The nested app is a compatibility launcher, and its README/requirements point to the parent. No original Git repository was present in the ZIP. The workspace's unusable `.git` was not changed; nothing was committed or pushed.
 
+## Live Demo
+
+Try SmartDine: [Open the app](https://smart-dine.streamlit.app/)
+
 ```text
 smart-dine-main/
   app.py                         canonical Streamlit UI
